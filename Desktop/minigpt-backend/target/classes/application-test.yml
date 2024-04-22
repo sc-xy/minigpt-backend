@@ -1,0 +1,16 @@
+# 测试配置文件
+server:
+  port: 5001
+spring:
+  # 数据库配置
+  # todo 需替换配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/gpt_db
+    username: root
+    password: root
+logging:
+  file:
+    name:  D:/miniGpt/spring.log  # 日志文件绝对路径及名称
+  level:
+    root: warn

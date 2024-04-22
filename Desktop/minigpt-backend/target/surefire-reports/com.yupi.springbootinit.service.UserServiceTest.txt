@@ -1,0 +1,8 @@
+-------------------------------------------------------------------------------
+Test set: com.yupi.springbootinit.service.UserServiceTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0 s <<< FAILURE! - in com.yupi.springbootinit.service.UserServiceTest
+com.yupi.springbootinit.service.UserServiceTest  Time elapsed: 0 s  <<< ERROR!
+java.lang.NoClassDefFoundError: Lcom/yupi/springbootinit/service/UserService;
+Caused by: java.lang.ClassNotFoundException: com.yupi.springbootinit.service.UserService
+

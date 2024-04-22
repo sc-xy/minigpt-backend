@@ -1,0 +1,8 @@
+-------------------------------------------------------------------------------
+Test set: com.yupi.springbootinit.manager.CosManagerTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0 s <<< FAILURE! - in com.yupi.springbootinit.manager.CosManagerTest
+com.yupi.springbootinit.manager.CosManagerTest  Time elapsed: 0 s  <<< ERROR!
+java.lang.NoClassDefFoundError: Lcom/yupi/springbootinit/manager/CosManager;
+Caused by: java.lang.ClassNotFoundException: com.yupi.springbootinit.manager.CosManager
+

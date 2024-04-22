@@ -1,0 +1,8 @@
+-------------------------------------------------------------------------------
+Test set: com.yupi.springbootinit.esdao.PostEsDaoTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.001 s <<< FAILURE! - in com.yupi.springbootinit.esdao.PostEsDaoTest
+com.yupi.springbootinit.esdao.PostEsDaoTest  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.NoClassDefFoundError: Lcom/yupi/springbootinit/esdao/PostEsDao;
+Caused by: java.lang.ClassNotFoundException: com.yupi.springbootinit.esdao.PostEsDao
+

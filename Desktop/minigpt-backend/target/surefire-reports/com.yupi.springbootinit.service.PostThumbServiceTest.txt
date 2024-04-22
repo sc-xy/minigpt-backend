@@ -1,0 +1,8 @@
+-------------------------------------------------------------------------------
+Test set: com.yupi.springbootinit.service.PostThumbServiceTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0 s <<< FAILURE! - in com.yupi.springbootinit.service.PostThumbServiceTest
+com.yupi.springbootinit.service.PostThumbServiceTest  Time elapsed: 0 s  <<< ERROR!
+java.lang.NoClassDefFoundError: Lcom/yupi/springbootinit/service/PostThumbService;
+Caused by: java.lang.ClassNotFoundException: com.yupi.springbootinit.service.PostThumbService
+
