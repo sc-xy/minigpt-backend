@@ -8,8 +8,10 @@ C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\utils\Spring
 C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\service\impl\ResponseServiceImpl.java
 C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\model\dto\conversion\ConversationDeleteRequest.java
 C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\utils\SqlUtils.java
+C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\model\dto\conversion\ConversationExportRequest.java
 C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\service\impl\MessageServiceImpl.java
 C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\config\ThreadPoolConfig.java
+C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\model\vo\ConversationExportVO.java
 C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\model\vo\ConversationInfoVO.java
 C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\model\vo\LoginUserVO.java
 C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\exception\GlobalExceptionHandler.java
@@ -44,6 +46,7 @@ C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\service\Conv
 C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\model\entity\Conversation.java
 C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\utils\NetUtils.java
 C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\constant\FileConstant.java
+C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\utils\TemplateExcelUtils.java
 C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\config\MyBatisPlusConfig.java
 C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\constant\CommonConstant.java
 C:\Users\XY\Desktop\minigpt-backend\src\main\java\com\xy\springboot\exception\ThrowUtils.java

@@ -1,6 +1,10 @@
 package com.xy.springboot.controller;
 
 import cn.hutool.core.io.FileUtil;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.metadata.data.WriteCellData;
+import com.alibaba.excel.util.FileUtils;
+import com.alibaba.excel.util.MapUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xy.springboot.common.BaseResponse;
 import com.xy.springboot.common.ErrorCode;
@@ -8,6 +12,7 @@ import com.xy.springboot.common.ResultUtils;
 import com.xy.springboot.exception.BusinessException;
 import com.xy.springboot.model.dto.conversion.ConversationAskRequest;
 import com.xy.springboot.model.dto.conversion.ConversationDeleteRequest;
+import com.xy.springboot.model.dto.conversion.ConversationExportRequest;
 import com.xy.springboot.model.dto.conversion.ConversationQueryRequest;
 import com.xy.springboot.model.entity.Conversation;
 import com.xy.springboot.model.entity.Message;
@@ -19,6 +24,7 @@ import com.xy.springboot.service.ConversationService;
 import com.xy.springboot.service.MessageService;
 import com.xy.springboot.service.ResponseService;
 import com.xy.springboot.service.UserService;
+import com.xy.springboot.utils.TemplateExcelUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -31,12 +37,13 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -69,16 +76,13 @@ public class ConversationController {
     /**
      * 对话列表
      *
+     * @param request
      * @return
-     * @Param request
      */
     @GetMapping("/list")
     public BaseResponse<List<ConversationVO>> listConversation(HttpServletRequest request) {
         QueryWrapper<Conversation> queryWrapper = new QueryWrapper<>();
         User user = userService.getLoginUser(request);
-        if (user == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "未登录");
-        }
         queryWrapper.eq("userId", user.getId());
         List<Conversation> conversationList = conversationService.list(queryWrapper);
         return ResultUtils.success(conversationService.convertConversationVOList(conversationList));
@@ -87,21 +91,77 @@ public class ConversationController {
     /**
      * 获取对话详细信息
      *
+     * @param conversationQueryRequest
      * @return
-     * @Param conversationQueryRequest
      */
     @GetMapping("/detail")
     public BaseResponse<ConversationInfoVO> getConversationDetail(ConversationQueryRequest conversationQueryRequest) {
         Long conversationId = conversationQueryRequest.getConversationId();
-        log.info("conversationId: {}", conversationId);
-        log.info("messageService: {}", messageService == null);
         List<Message> messages = messageService.getMessageByConversationId(conversationId);
-        log.info("messages: {}", messages.size());
         List<Response> responses = responseService.getResponseByMessageIds(
                 messages.stream().map(Message::getId).collect(Collectors.toList()));
         ConversationInfoVO conversationInfoVO = conversationService.buildConversationInfoVO(conversationId, messages, responses);
         return ResultUtils.success(conversationInfoVO);
     }
+
+    /**
+     * 导出对话信息
+     *
+     * @param conversationExportRequest
+     * @param response
+     * @return
+     */
+    @GetMapping("/export")
+    public void exportConversation(ConversationExportRequest conversationExportRequest, HttpServletResponse response) throws IOException {
+        Long conversationId = conversationExportRequest.getConversationId();
+        List<Message> messages = messageService.getMessageByConversationId(conversationId);
+        List<Response> responses = responseService.getResponseByMessageIds(
+                messages.stream().map(Message::getId).collect(Collectors.toList()));
+        List<List<Object>> excelData = null;
+        try {
+            excelData = generateExcelData(conversationId, messages, responses);
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setCharacterEncoding("utf-8");
+            EasyExcel.write(response.getOutputStream()).autoCloseStream(Boolean.FALSE).sheet("对话")
+                    .doWrite(excelData);
+        } catch (IOException e) {
+            response.reset();
+            response.setContentType("application/json");
+            response.setCharacterEncoding("utf-8");
+            Map<String, String> map = MapUtils.newHashMap();
+            map.put("status", "failure");
+            map.put("message", "下载文件失败" + e.getMessage());
+            response.getWriter().println(map);
+        }
+
+    }
+
+    public List<List<Object>> generateExcelData(Long conversationId, List<Message> messages, List<Response> responses) throws IOException {
+        List<List<Object>> list = new ArrayList<>();
+        String imgPath = "D:\\imgSpace\\" + conversationId + ".jpg";
+        File imgFile = new File(imgPath);
+        BufferedImage image= ImageIO.read(imgFile);
+        Double width = (double) image.getWidth();
+        Double height = (double) image.getHeight();
+        WriteCellData<Void> voidWriteCellData = TemplateExcelUtils.imageCells(FileUtils.readFileToByteArray(imgFile),width,height,0.6,1.9);
+
+        list.add(new ArrayList<Object>() {{
+            add(voidWriteCellData);
+        }});
+        Map<Long, String> repMap = new HashMap<>();
+        for (Response rep:responses) {
+            repMap.put(rep.getMessageId(), rep.getContent());
+        }
+        for (Message msg:messages) {
+            if (repMap.containsKey(msg.getId())) {
+                list.add(Arrays.asList(new String[]{"提问", msg.getContent()}));
+                list.add(Arrays.asList(new String[]{"回答", repMap.get(msg.getId())}));
+            }
+        }
+        return list;
+    }
+
+
 
     /**
      * 对话
@@ -146,15 +206,20 @@ public class ConversationController {
 
         @Override
         public void run() {
+            String ask1 = conversationAskRequest.getAsk();
+            // 去掉空格和&符号，避免url中的参数错误
+            ask1 = ask1.replaceAll(" ", "%20");
+            ask1 = ask1.replaceAll("&", "and");
+            String url = "http://localhost:5000/sse?conversationId=" + conversationAskRequest.getConversationId() + "&ask=" + ask1;
             Request request = new Request.Builder()
-                    .url("http://localhost:5000/sse?conversationId=" + conversationAskRequest.getConversationId() + "&ask=" + conversationAskRequest.getAsk())
+                    .url(url)
                     .get()
                     .build();
             // OkHttp客户端
             OkHttpClient client = new OkHttpClient.Builder()
                     .connectTimeout(10, TimeUnit.SECONDS)
-                    .writeTimeout(50, TimeUnit.SECONDS)
-                    .readTimeout(50, TimeUnit.SECONDS)
+                    .writeTimeout(60, TimeUnit.SECONDS)
+                    .readTimeout(60, TimeUnit.SECONDS)
                     .build();
 
             // 事件源工厂
