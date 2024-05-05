@@ -8,6 +8,7 @@ import com.xy.springboot.mapper.ResponseMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,6 +29,9 @@ public class ResponseServiceImpl extends ServiceImpl<ResponseMapper, Response>
 
     @Override
     public List<Response> getResponseByMessageIds(List<Long> messageIds) {
+        if (messageIds == null || messageIds.isEmpty()) {
+            return new ArrayList<>();
+        }
         QueryWrapper<Response> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("messageId", messageIds);
         return this.list(queryWrapper);
